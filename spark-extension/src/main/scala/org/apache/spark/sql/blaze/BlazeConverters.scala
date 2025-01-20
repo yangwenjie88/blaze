@@ -77,6 +77,7 @@ import org.apache.spark.sql.execution.blaze.plan.ConvertToNativeBase
 import org.apache.spark.sql.execution.blaze.plan.NativeOrcScanBase
 import org.apache.spark.sql.execution.blaze.plan.NativeParquetScanBase
 import org.apache.spark.sql.execution.blaze.plan.NativeSortBase
+import org.apache.spark.sql.execution.datasources.v2.BatchScanExec
 import org.apache.spark.sql.hive.blaze.BlazeHiveConverters
 import org.apache.spark.sql.hive.execution.InsertIntoHiveTable
 import org.apache.spark.sql.hive.execution.blaze.plan.NativeHiveTableScanBase
@@ -152,11 +153,16 @@ object BlazeConverters extends Logging {
   }
 
   def convertSparkPlan(exec: SparkPlan): SparkPlan = {
+    logInfo(s"Converting SparkPlan:  Exec type: ${exec.getClass.getName}")
     exec match {
       case e: ShuffleExchangeExec => tryConvert(e, convertShuffleExchangeExec)
       case e: BroadcastExchangeExec => tryConvert(e, convertBroadcastExchangeExec)
       case e: FileSourceScanExec if enableScan => // scan
+        logInfo(s"Converting FileSourceScanExec:  Exec type: ${e.getClass.getName}")
         tryConvert(e, convertFileSourceScanExec)
+      case e: BatchScanExec if enableScan => // scan
+        logInfo(s"Converting BatchScanExec:  Exec type: ${e.getClass.getName}")
+        tryConvert(e, convertBatchScanExec)
       case e
           if enablePaimonScan && BlazeHiveConverters.isNativePaimonTableScan(e) => // scan paimon
         tryConvert(e, BlazeHiveConverters.convertPaimonTableScanExec)
@@ -337,6 +343,11 @@ object BlazeConverters extends Logging {
       case _ => throw new NotImplementedError("Cannot convert non parquet/orc scan exec")
     }
   }
+
+  def convertBatchScanExec(exec: BatchScanExec): SparkPlan = {
+    addRenameColumnsExec(Shims.get.createNativeBatchScanOrcExec(exec))
+  }
+
 
   def convertProjectExec(exec: ProjectExec): SparkPlan = {
     val (projectList, child) = (exec.projectList, exec.child)

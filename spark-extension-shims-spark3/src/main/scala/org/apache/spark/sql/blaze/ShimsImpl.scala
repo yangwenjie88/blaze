@@ -112,6 +112,7 @@ import org.apache.spark.storage.BlockManagerId
 import org.apache.spark.storage.FileSegment
 import org.blaze.{protobuf => pb}
 import com.thoughtworks.enableIf
+import org.apache.spark.sql.execution.datasources.v2.BatchScanExec
 
 class ShimsImpl extends Shims with Logging {
 
@@ -251,6 +252,9 @@ class ShimsImpl extends Shims with Logging {
 
   override def createNativeOrcScanExec(basedFileScan: FileSourceScanExec): NativeOrcScanBase =
     NativeOrcScanExec(basedFileScan)
+
+  override def createNativeBatchScanOrcExec(batchScan: BatchScanExec): NativeBatchScanOrcBase =
+    NativeBatchScanOrcExec(batchScan)
 
   override def createNativeProjectExec(
       projectList: Seq[NamedExpression],

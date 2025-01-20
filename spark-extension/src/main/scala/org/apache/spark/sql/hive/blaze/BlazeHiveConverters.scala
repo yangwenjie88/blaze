@@ -16,21 +16,37 @@
 package org.apache.spark.sql.hive.blaze
 
 import org.apache.spark.internal.Logging
-import org.apache.spark.sql.blaze.BlazeConverters.addRenameColumnsExec
+import org.apache.spark.sql.blaze.BlazeConverters.{addRenameColumnsExec, enablePaimonScan}
 import org.apache.spark.sql.blaze.Shims
+import org.apache.spark.sql.catalyst.catalog.HiveTableRelation
 import org.apache.spark.sql.execution.SparkPlan
+import org.apache.spark.sql.execution.datasources.v2.BatchScanExec
 import org.apache.spark.sql.hive.execution.HiveTableScanExec
 import org.apache.spark.sql.hive.execution.blaze.plan.NativePaimonTableScanExec
 
 object BlazeHiveConverters extends Logging {
 
   def isNativePaimonTableScan(exec: SparkPlan): Boolean = {
+    logInfo(s"Checking if HiveTableScanExec is NativePaimonTableScanExec ${enablePaimonScan}")
+    logInfo("Checking if HiveTableScanExec is NativePaimonTableScanExec")
     exec match {
-      case e: HiveTableScanExec
-          if e.relation.tableMeta.storage.serde.isDefined
-            && e.relation.tableMeta.storage.serde.get.contains("Paimon") =>
-        true
-      case _ => false
+      case e: HiveTableScanExec =>
+        // 打印日志，记录 serde 的值
+        logInfo(s"Serde value for table ${e.relation.tableMeta.storage.serde.isDefined}: ${e.relation.tableMeta.storage.serde.get}")
+        // 判断逻辑
+        if (e.relation.tableMeta.storage.serde.isDefined &&
+          e.relation.tableMeta.storage.serde.get.contains("Paimon")) {
+          true
+        } else {
+          false
+        }
+      case BatchScanExec(output, scan, runtimeFilters, ordering, table, spjParams)  =>
+        HiveTableRelation
+        logInfo(s"BatchScanExec. Exec type: ${table}")
+        false
+      case _ =>
+        logInfo(s"HiveTableScanExec is not NativePaimonTableScanExec. Exec type: ${exec.getClass.getName}")
+        false
     }
   }
 

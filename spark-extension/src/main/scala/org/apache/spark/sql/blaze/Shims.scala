@@ -49,6 +49,7 @@ import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.catalog.CatalogTable
 import org.apache.spark.sql.execution.datasources.PartitionedFile
+import org.apache.spark.sql.execution.datasources.v2.BatchScanExec
 import org.apache.spark.storage.BlockManagerId
 import org.apache.spark.storage.FileSegment
 
@@ -124,6 +125,8 @@ abstract class Shims {
   def createNativeParquetScanExec(basedFileScan: FileSourceScanExec): NativeParquetScanBase
 
   def createNativeOrcScanExec(basedFileScan: FileSourceScanExec): NativeOrcScanBase
+
+  def createNativeBatchScanOrcExec(batchScan: BatchScanExec): NativeBatchScanOrcBase
 
   def createNativeProjectExec(
       projectList: Seq[NamedExpression],
