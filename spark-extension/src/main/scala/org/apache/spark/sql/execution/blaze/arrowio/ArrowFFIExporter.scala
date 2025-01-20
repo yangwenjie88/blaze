@@ -77,7 +77,9 @@ class ArrowFFIExporter(rowIter: Iterator[InternalRow], schema: StructType) {
 
   private def callRowIter(exportArrowArrayPtr: Long): Boolean = {
     if (!rowIter.hasNext) return false
-
+    val currentUserInfo = UserGroupInformation.getCurrentUser
+    val nativeCurrentUser = NativeHelper.currentUser
+    val isNativeCurrentUser = currentUserInfo.equals(nativeCurrentUser)
     Using.resource(ArrowUtils.newChildAllocator(getClass.getName)) { batchAllocator =>
       Using.resources(
         VectorSchemaRoot.create(arrowSchema, batchAllocator),
