@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package org.apache.spark.sql.execution.blaze.plan
-import org.apache.spark.sql.execution.datasources.v2.{BatchScanExec, FileScan, V1ScanWrapper}
+import org.apache.spark.sql.execution.datasources.v2.BatchScanExec
 
 case class NativeBatchScanOrcExec(basedFileScan: BatchScanExec)
     extends NativeBatchScanOrcBase(basedFileScan) {

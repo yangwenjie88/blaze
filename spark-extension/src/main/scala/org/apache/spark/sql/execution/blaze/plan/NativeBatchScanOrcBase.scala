@@ -17,7 +17,7 @@ package org.apache.spark.sql.execution.blaze.plan
 
 import org.apache.spark.{Partition, TaskContext}
 import org.apache.spark.sql.blaze.{MetricNode, NativeRDD}
-import org.apache.spark.sql.execution.datasources.v2.{BatchScanExec, FileScan, V1ScanWrapper}
+import org.apache.spark.sql.execution.datasources.v2.BatchScanExec
 
 import org.apache.spark.sql.execution.datasources.FilePartition
 import org.blaze.{protobuf => pb}
