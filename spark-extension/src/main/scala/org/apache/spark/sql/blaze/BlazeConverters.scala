@@ -161,7 +161,7 @@ object BlazeConverters extends Logging {
         logInfo(s"Converting FileSourceScanExec:  Exec type: ${e.getClass.getName}")
         tryConvert(e, convertFileSourceScanExec)
       case e: BatchScanExec if enableScan => // scan
-        logInfo(s"Converting BatchScanExec:  Exec type: ${e.getClass.getName}")
+        logInfo(s"Converting BatchScanExec:  Exec type: ${e.getClass.getName}, Scan: ${e.scan.getClass.getName}")
         tryConvert(e, convertBatchScanExec)
       case e
           if enablePaimonScan && BlazeHiveConverters.isNativePaimonTableScan(e) => // scan paimon
