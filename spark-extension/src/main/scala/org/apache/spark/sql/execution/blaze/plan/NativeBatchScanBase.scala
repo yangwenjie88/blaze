@@ -82,9 +82,11 @@ abstract class NativeBatchScanBase(batchScanExec: BatchScanExec)
     .mapValues(_.map(_.length).sum)
     .map(identity) // make this map serializable
 
-  protected def nativePruningPredicateFilters: Seq[pb.PhysicalExprNode] =
-    batchScanExec.runtimeFilters
-      .map(expr => NativeConverters.convertScanPruningExpr(expr))
+  protected def nativePruningPredicateFilters: Seq[pb.PhysicalExprNode] = batchScanExec.scan match {
+    case fileScan: FileScan =>
+      fileScan.dataFilters.map(expr => NativeConverters.convertScanPruningExpr(expr))
+    case _ => Seq()
+  }
 
   protected def nativeFileSchema: pb.Schema =
     NativeConverters.convertSchema(getDataSchema)

@@ -40,6 +40,7 @@ import org.apache.spark.sql.execution.GenerateExec
 import org.apache.spark.sql.execution.LocalTableScanExec
 import org.apache.spark.sql.execution.blaze.plan.BuildSide
 import org.apache.spark.sql.execution.command.DataWritingCommandExec
+import org.apache.spark.sql.execution.datasources.v2.BatchScanExec
 import org.apache.spark.sql.execution.joins.BroadcastNestedLoopJoinExec
 import org.apache.spark.sql.execution.joins.ShuffledHashJoinExec
 import org.apache.spark.sql.hive.blaze.BlazeHiveConverters
@@ -123,6 +124,8 @@ object BlazeConvertStrategy extends Logging {
       case e: BroadcastExchangeExec =>
         e.setTagValue(convertStrategyTag, AlwaysConvert)
       case e: FileSourceScanExec =>
+        e.setTagValue(convertStrategyTag, AlwaysConvert)
+      case e: BatchScanExec  =>
         e.setTagValue(convertStrategyTag, AlwaysConvert)
       case e if BlazeHiveConverters.isNativePaimonTableScan(e) =>
         e.setTagValue(convertStrategyTag, AlwaysConvert)
